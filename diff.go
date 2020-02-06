@@ -2,9 +2,9 @@ package diff
 
 import (
 	"bytes"
-	"strings"
-
 	"github.com/sergi/go-diff/diffmatchpatch"
+	"strconv"
+	"strings"
 )
 
 func diff(a, b string) []diffmatchpatch.Diff {
@@ -124,5 +124,19 @@ func diffsToPatchLines(diffs []diffmatchpatch.Diff) []string {
 	}
 
 	b.Flush()
+	//这里已经完成差异比较并把含原文的结果存入output里，
+	//我们想只输出差异，在这里对output做进一步处理
+	var tt []string = make([]string, 0)
+	totalAdd := 0
+	for idx, line := range b.output {
+		if line[:1] == "+" {
+			totalAdd++
+			tt = append(tt, strconv.Itoa(idx-totalAdd)+line)
+		}
+		if line[:1] == "-" {
+			tt = append(tt, strconv.Itoa(idx-totalAdd)+line)
+		}
+	}
+	b.output = tt
 	return b.output
 }
